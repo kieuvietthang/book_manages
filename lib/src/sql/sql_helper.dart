@@ -23,6 +23,15 @@ class SQLHelper {
       )
       """);
   }
+  static Future<void> createManageBookTables(sql.Database database) async {
+    await database.execute("""CREATE TABLE managesBookCategories(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        maLoaiSach TEXT,
+        tenLoaiSach TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+      """);
+  }
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(
@@ -31,6 +40,7 @@ class SQLHelper {
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
         await createManageTables(database);
+        await createManageBookTables(database);
       },
     );
   }
@@ -121,6 +131,54 @@ class SQLHelper {
     final db = await SQLHelper.db();
     try {
       await db.delete("manages", where: "id = ?", whereArgs: [id]);
+    } catch (err) {
+      debugPrint("Something went wrong when deleting an item: $err");
+    }
+  }
+
+
+
+  //quan ly loai sach
+
+  static Future<int> createManageBook(
+      String title, String? name) async {
+    final db = await SQLHelper.db();
+
+    final data = {'maLoaiSach': title, 'tenLoaiSach': name};
+    final id = await db.insert('managesBookCategories', data,
+        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    return id;
+  }
+
+  static Future<List<Map<String, dynamic>>> getManagesBook() async {
+    final db = await SQLHelper.db();
+    return db.query('managesBookCategories', orderBy: "id");
+  }
+
+  static Future<List<Map<String, dynamic>>> getManageBook(int id) async {
+    final db = await SQLHelper.db();
+    return db.query('managesBookCategories', where: "id = ?", whereArgs: [id], limit: 1);
+  }
+
+  static Future<int> updateManageBook(
+      int id, String title, String? name) async {
+    final db = await SQLHelper.db();
+
+    final data = {
+      'maLoaiSach': title,
+      'tenLoaiSach': name,
+      'createdAt': DateTime.now().toString()
+    };
+
+    final result =
+    await db.update('managesBookCategories', data, where: "id = ?", whereArgs: [id]);
+    return result;
+  }
+
+  static Future<void> deleteManageBook(int id) async {
+    final db = await SQLHelper.db();
+    try {
+      await db.delete("managesBookCategories", where: "id = ?", whereArgs: [id]);
     } catch (err) {
       debugPrint("Something went wrong when deleting an item: $err");
     }

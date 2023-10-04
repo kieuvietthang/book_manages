@@ -1,4 +1,5 @@
 import 'package:demo/src/sql/sql_helper.dart';
+import 'package:demo/src/views/manage_book_categories_screen/manage_book_categories_screen.dart';
 import 'package:demo/src/views/manage_member/manage_member.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -263,19 +264,24 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(
           height: 15,
         ),
-        const Padding(
+         Padding(
           padding: EdgeInsets.only(left: 15),
-          child: Row(
-            children: [
-              Icon(Icons.book),
-              SizedBox(
-                width: 15,
-              ),
-              Text(
-                'Quản lý Loại Sách',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ],
+          child: GestureDetector(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ManageBookCategoriesScreen()));
+            },
+            child: Row(
+              children: [
+                Icon(Icons.book),
+                SizedBox(
+                  width: 15,
+                ),
+                Text(
+                  'Quản lý Loại Sách',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(
