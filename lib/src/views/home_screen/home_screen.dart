@@ -1,3 +1,4 @@
+import 'package:demo/src/Authtentication/login.dart';
 import 'package:demo/src/models/User.dart';
 import 'package:demo/src/sql/sql_helper.dart';
 import 'package:demo/src/views/manage_book_categories_screen/manage_book_categories_screen.dart';
@@ -451,8 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: InkWell(
             onTap: (){
               delete();
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
             },
             child: const Row(
               children: [
