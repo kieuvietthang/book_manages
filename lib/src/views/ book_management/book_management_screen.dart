@@ -1,22 +1,21 @@
-import 'package:demo/src/sql/sql_helper.dart';
 import 'package:flutter/material.dart';
 
-class ManageBookCategoriesScreen extends StatefulWidget {
-  const ManageBookCategoriesScreen({super.key});
+import '../../sql/sql_helper.dart';
+
+class BookManagementScreen extends StatefulWidget {
+  const BookManagementScreen({super.key});
 
   @override
-  State<ManageBookCategoriesScreen> createState() =>
-      _ManageBookCategoriesScreenState();
+  State<BookManagementScreen> createState() => _BookManagementScreenState();
 }
 
-class _ManageBookCategoriesScreenState
-    extends State<ManageBookCategoriesScreen> {
+class _BookManagementScreenState extends State<BookManagementScreen> {
   List<Map<String, dynamic>> _journals = [];
 
   bool _isLoading = true;
 
   void _refreshJournals() async {
-    final data = await SQLHelper.getManagesBook();
+    final data = await SQLHelper.getManagesBookk();
     setState(() {
       _journals = data;
       _isLoading = false;
@@ -29,15 +28,17 @@ class _ManageBookCategoriesScreenState
     _refreshJournals();
   }
 
-  final TextEditingController _maLoaiSachController = TextEditingController();
-  final TextEditingController _tenLoaiSachController = TextEditingController();
+  final TextEditingController _maSachController = TextEditingController();
+  final TextEditingController _tenSachController = TextEditingController();
+  final TextEditingController _giaThueController = TextEditingController();
 
   void _showForm(int? id) async {
     if (id != null) {
       final existingJournal =
           _journals.firstWhere((element) => element['id'] == id);
-      _maLoaiSachController.text = existingJournal['maLoaiSach'];
-      _tenLoaiSachController.text = existingJournal['tenLoaiSach'];
+      _maSachController.text = existingJournal['maSach'];
+      _tenSachController.text = existingJournal['tenSach'];
+      _giaThueController.text = existingJournal['giaThue'];
     }
 
     showDialog<void>(
@@ -58,15 +59,22 @@ class _ManageBookCategoriesScreenState
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 TextField(
-                  controller: _maLoaiSachController,
-                  decoration: const InputDecoration(hintText: 'Mã loại sách'),
+                  controller: _maSachController,
+                  decoration: const InputDecoration(hintText: 'Mã sách'),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 TextField(
-                  controller: _tenLoaiSachController,
-                  decoration: const InputDecoration(hintText: 'Tên loại sách'),
+                  controller: _tenSachController,
+                  decoration: const InputDecoration(hintText: 'Tên Sách'),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  controller: _giaThueController,
+                  decoration: const InputDecoration(hintText: 'Giá Thuê'),
                 ),
                 const SizedBox(
                   height: 20,
@@ -82,8 +90,9 @@ class _ManageBookCategoriesScreenState
                         if (id != null) {
                           await _updateItem(id);
                         }
-                        _maLoaiSachController.text = '';
-                        _tenLoaiSachController.text = '';
+                        _maSachController.text = '';
+                        _tenSachController.text = '';
+                        _giaThueController.text = '';
 
                         Navigator.of(context).pop();
                       },
@@ -109,19 +118,19 @@ class _ManageBookCategoriesScreenState
   }
 
   Future<void> _addItem() async {
-    await SQLHelper.createManageBook(
-        _maLoaiSachController.text, _tenLoaiSachController.text);
+    await SQLHelper.createManageBookk(_maSachController.text,
+        _tenSachController.text, _giaThueController.text);
     _refreshJournals();
   }
 
   Future<void> _updateItem(int id) async {
-    await SQLHelper.updateManageBook(
-        id, _maLoaiSachController.text, _tenLoaiSachController.text);
+    await SQLHelper.updateManageBookk(id, _maSachController.text,
+        _tenSachController.text, _giaThueController.text);
     _refreshJournals();
   }
 
   void _deleteItem(int id) async {
-    await SQLHelper.deleteManageBook(id);
+    await SQLHelper.deleteManageBookk(id);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Successfully deleted a journal!'),
     ));
@@ -133,7 +142,7 @@ class _ManageBookCategoriesScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Quản lý loại sách',
+          'Quản lý sách',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
@@ -146,7 +155,7 @@ class _ManageBookCategoriesScreenState
               itemBuilder: (context, index) => Card(
                   color: Colors.orange[200],
                   margin: const EdgeInsets.all(15),
-                  child: Container(
+                  child: SizedBox(
                     height: 80,
                     width: double.infinity,
                     child: Stack(
@@ -158,12 +167,17 @@ class _ManageBookCategoriesScreenState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${_journals[index]['maLoaiSach']}',
+                                '${_journals[index]['maSach']}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                '${_journals[index]['tenLoaiSach']}',
+                                '${_journals[index]['tenSach']}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                '${_journals[index]['giaThue']}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w500),
                               ),

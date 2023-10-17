@@ -1,4 +1,4 @@
-import 'package:demo/src/views/login_screen/login_screen.dart';
+import 'package:demo/src/views/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: const LoginScreen()
+      home: const SplashScreen()
     );
   }
 }

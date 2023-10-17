@@ -1,9 +1,14 @@
+import 'package:demo/src/models/User.dart';
 import 'package:demo/src/sql/sql_helper.dart';
 import 'package:demo/src/views/manage_book_categories_screen/manage_book_categories_screen.dart';
 import 'package:demo/src/views/manage_member/manage_member.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart' as sql;
+
+import '../ book_management/book_management_screen.dart';
+import '../../SQLite/sqlite.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _journals = [];
+  final db = DatabaseHelper();
 
   bool _isLoading = true;
 
@@ -23,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _journals = data;
       _isLoading = false;
     });
+  }
+
+  delete(){
+    db.deleteLoginResponse(0);
   }
 
   @override
@@ -50,74 +60,73 @@ class _HomeScreenState extends State<HomeScreen> {
           contentPadding: EdgeInsets.zero,
           content: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.only(
-                  top: 15,
-                  left: 15,
-                  right: 15,
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 120,
+            padding: EdgeInsets.only(
+              top: 15,
+              left: 15,
+              right: 15,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 120,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                TextField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(hintText: 'thành viên'),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  controller: _bookTitleController,
+                  decoration: const InputDecoration(hintText: 'Tên Sách'),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  controller: _moneyController,
+                  decoration: const InputDecoration(hintText: 'Tiền Mượn'),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextField(
-                      controller: _titleController,
-                      decoration: const InputDecoration(hintText: 'thành viên'),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextField(
-                      controller: _bookTitleController,
-                      decoration: const InputDecoration(hintText: 'Tên Sách'),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextField(
-                      controller: _moneyController,
-                      decoration: const InputDecoration(hintText: 'Tiền Mượn'),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (id == null) {
-                              await _addItem();
-                            }
-                            if (id != null) {
-                              await _updateItem(id);
-                            }
-                            _titleController.text = '';
-                            _bookTitleController.text = '';
-                            _moneyController.text = '';
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (id == null) {
+                          await _addItem();
+                        }
+                        if (id != null) {
+                          await _updateItem(id);
+                        }
+                        _titleController.text = '';
+                        _bookTitleController.text = '';
+                        _moneyController.text = '';
 
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(id == null ? 'Lưu' : 'Sửa'),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('Huỷ'),
-                        ),
-                      ],
-                    )
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(id == null ? 'Lưu' : 'Sửa'),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Huỷ'),
+                    ),
                   ],
-                ),
-              )),
+                )
+              ],
+            ),
+          )),
         );
       },
     );
-
   }
 
   Future<void> _addItem() async {
@@ -140,12 +149,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _refreshJournals();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer:  Drawer(child: Information(context)),
+      drawer: Drawer(child: Information(context)),
       appBar: AppBar(
-        title: const Text('Quản lý phiếu mượn',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
+        title: const Text('Quản lý phiếu mượn',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       ),
       body: _isLoading
           ? const Center(
@@ -167,9 +179,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${_journals[index]['title']}',style: TextStyle(fontWeight: FontWeight.w500),),
-                              Text('${_journals[index]['book_title']}',style: TextStyle(fontWeight: FontWeight.w500),),
-                              Text('${_journals[index]['money']}',style: TextStyle(fontWeight: FontWeight.w500),),
+                              Text(
+                                '${_journals[index]['title']}',
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                '${_journals[index]['book_title']}',
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                '${_journals[index]['money']}',
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
                             ],
                           ),
                         ),
@@ -189,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 10,
                               ),
                               InkWell(
-                                onTap: (){
+                                onTap: () {
                                   _deleteItem(_journals[index]['id']);
                                 },
                                 child: Icon(Icons.delete),
@@ -199,8 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                  )
-                  ),
+                  )),
             ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
@@ -264,13 +284,16 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(
           height: 15,
         ),
-         Padding(
+        Padding(
           padding: EdgeInsets.only(left: 15),
           child: GestureDetector(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ManageBookCategoriesScreen()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ManageBookCategoriesScreen()));
             },
-            child: Row(
+            child: const Row(
               children: [
                 Icon(Icons.book),
                 SizedBox(
@@ -287,29 +310,40 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(
           height: 15,
         ),
-        const Padding(
-          padding: EdgeInsets.only(left: 15),
-          child: Row(
-            children: [
-              Icon(Icons.picture_as_pdf),
-              SizedBox(
-                width: 15,
-              ),
-              Text(
-                'Quản lý Sách',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ],
+        Padding(
+          padding: const EdgeInsets.only(left: 15),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const BookManagementScreen()));
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.picture_as_pdf),
+                SizedBox(
+                  width: 15,
+                ),
+                Text(
+                  'Quản lý Sách',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(
           height: 15,
         ),
-         Padding(
+        Padding(
           padding: EdgeInsets.only(left: 15),
           child: InkWell(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ManageMemberScreen()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ManageMemberScreen()));
             },
             child: Row(
               children: [
@@ -412,19 +446,26 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(
           height: 15,
         ),
-        const Padding(
+         Padding(
           padding: EdgeInsets.only(left: 15),
-          child: Row(
-            children: [
-              Icon(Icons.logout),
-              SizedBox(
-                width: 15,
-              ),
-              Text(
-                'Đăng xuất',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ],
+          child: InkWell(
+            onTap: (){
+              delete();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.logout),
+                SizedBox(
+                  width: 15,
+                ),
+                Text(
+                  'Đăng xuất',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
           ),
         ),
       ],
